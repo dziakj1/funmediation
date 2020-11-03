@@ -1,0 +1,20 @@
+Package: funmediation
+Type: Package
+Title: Functional Mediation for a Distal Outcome
+Version: 0.1.0
+Date: 2020-08-24
+Authors@R: c(person(given="John J.", family="Dziak",
+                     role = c("aut", "cre"),
+                     email = "dziakj1@gmail.com"),
+              person(given="Donna L.", family="Coffman", role = "aut"),
+              person(given="Runze", family="Li", role = "aut"),
+			  person(given="Kaylee", family="Litson", role = "aut"))
+VignetteBuilder: knitr
+Depends: refund, tvem, boot
+Suggests: knitr, rmarkdown
+Maintainer: John J. Dziak <dziakj1@gmail.com>
+Description: Fits a functional mediation model with a scalar distal outcome.
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
