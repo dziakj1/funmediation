@@ -18,25 +18,42 @@ knitr::opts_chunk$set(
 
 # Introduction 
 
-The ``funmediation`` package fits a functional mediation model to a dataset consisting of intensive longitudinal data for a sample of  individuals. For each individual $i$, the model assumes a dichotomous time-invariant (i.e., non-time-varying) randomized treatment or exposure $X_i$, a distal outcome $Y_i$ observed at one time point (e.g., end-of-study), and a time-varying mediator $M_i(t)$ observed repeatedly during the interval after $X_i$ is observed and before $Y_i$ is observed. The research question is whether the effect of $X_i$ on $Y_i$ is mediated by the process $M_i(t)$. A similar model was first proposed by Lindquist (2012).  $M_i(t)$ can be continuous or binary, and $Y_i$ can also be either continuous or binary. The treatment variable $X_i$ is assumed to be binary.
+The ``funmediation`` package fits a functional mediation model to a dataset consisting of intensive longitudinal data for a sample of  individuals. 
+For each individual $i$, the model assumes a time-invariant (i.e., non-time-varying) randomized treatment or exposure $X_i$, a distal outcome $Y_i$ observed at one time point (e.g., end-of-study), and a time-varying mediator $M_i(t)$ observed repeatedly during the interval after $X_i$ is observed and before $Y_i$ is observed.
+$X_i$ is treated as a number;  that means it can either be dichotomous (and coded as 0 for no and 1 for yes) or continuous (and entered as the number).
+If $X_i$ is categorical with more than two categories, it needs to be entered as multiple binary dummy codes.
+The research question is whether the effect of $X_i$ on $Y_i$ is mediated by the process $M_i(t)$. 
+A similar model was first proposed by Lindquist (2012).
+$M_i(t)$ can be continuous or binary, and $Y_i$ can also be either continuous or binary.
+The treatment variable $X_i$ is assumed to be binary.
 
 # Notation
 
-The mediation model for ``funmediation`` is fit in stages.  First, the effect of $X_i$ on $M_i$ is fit behind the scenes as a time-varying effects (longitudinal varying coefficients) model (TVEM; see Hastie and Tibshirani, 1993; Tan et al., 2012).  The assumed mean model is
+The mediation model for ``funmediation`` is fit in stages.  
+First, the effect of $X_i$ on $M_i$ is fit behind the scenes as a time-varying effects (longitudinal varying coefficients) model (TVEM; see Hastie and Tibshirani, 1993; Tan et al., 2012).
+The assumed mean model is
 $E(M_i(t)) = \alpha_0(t) + \alpha_X(t) X_i$
 for continuous $M_i(t)$, or
 $\mathrm{logit}^{-1}(E(M_i(t))) = \alpha_0(t) + \alpha_X(t) X_i$ 
 for binary $M_i(t)$. 
-This fits the marginal (population-averaged) mean: that is, without random effects but with a sandwich covariance estimate to handle within-subject correlation, as in working-independence generalized estimating equations.  This part of the model is fit using the ``tvem`` function in the ``tvem`` R package.
+This fits the marginal (population-averaged) mean: that is, without random effects but with a sandwich covariance estimate to handle within-subject correlation, as in working-independence generalized estimating equations.  
+This part of the model is fit using the ``tvem`` function in the ``tvem`` R package.
 
-Next, the effect of $X_i$ and $M_i(t)$ on $Y_i$ is modeled as a scalar-on-function functional regression (see Goldsmith et al., 2011). The assumed mean model is either 
+Next, the effect of $X_i$ and $M_i(t)$ on $Y_i$ is modeled as a scalar-on-function functional regression (see Goldsmith et al., 2011). 
+The assumed mean model is either 
 $E(Y_i) = \beta_0 + \beta_{X}X_i+ \int\beta_M(t)M_i(t)dt$
 for continuous $Y_i$, or
 $\mathrm{logit}^{-1}(E(Y_i)) = \beta_0 + \beta_{X}X_i+ \int\beta_M(t)M_i(t)dt$
-for binary $Y_i$.  This part of the model is fit using the ``pfr`` function in the ``refund`` R package (see Goldsmith et al., 2011).  Both the ``tvem`` and ``refund`` packages use the ``mgcv`` package (see Wood, 2017) for back-end calculations.
+for binary $Y_i$.  
+This part of the model is fit using the ``pfr`` function in the ``refund`` R package (see Goldsmith et al., 2011).  
+Both the ``tvem`` and ``refund`` packages use the ``mgcv`` package (see Wood, 2017) for back-end calculations.
 
-In this mediation model, $\alpha_X(t)$ and $\beta_M(t)$ both must be nonzero in order for an indirect effect (i.e., mediation) to exist.  These two functions arise conceptually from two different kinds of functional regression;  one represents a model with a concurrent function as a response (of which TVEM is a special case), while the other represents a model with a distal scalar response (see Ramsay and Silverman, 2005).  However, intuitively the size of the indirect effect has to do with both of them combined.  Here we operationally define the indirect effect as the integral $\int\alpha_X(t)\beta_M(t)dt$.
-Because these functions are actually only estimated on a grid of points, the integral is approximated as a weighted average of the cross-products of the estimates. We obtain a bootstrap confidence interval for this quantity using the ``boot`` package.
+In this mediation model, $\alpha_X(t)$ and $\beta_M(t)$ both must be nonzero in order for an indirect effect (i.e., mediation) to exist.  
+These two functions arise conceptually from two different kinds of functional regression;  one represents a model with a concurrent function as a response (of which TVEM is a special case), while the other represents a model with a distal scalar response (see Ramsay and Silverman, 2005).  
+However, intuitively the size of the indirect effect has to do with both of them combined.  
+Here we operationally define the indirect effect as the integral $\int\alpha_X(t)\beta_M(t)dt$.
+Because these functions are actually only estimated on a grid of points, the integral is approximated as a weighted average of the cross-products of the estimates. 
+We obtain a bootstrap confidence interval for this quantity using the ``boot`` package.
 
 # Including Covariates
 
@@ -287,6 +304,78 @@ model_with_binary_Y <- funmediation(data=data_with_binary_Y,
 print(model_with_binary_Y)
 plot(model_with_binary_Y, what_plot="coef")
 ```
+
+# More than Two Treatment Groups
+
+In the preceding examples, the treatment was assumed to be dichotomous and dummy-coded (0 for a control group and 1 for a treated group).  
+Thus, the coefficients were interpreted as effects of increasing the binary variable $X_i$ from 0 to 1.
+However, sometimes in practice there might be more than two groups in the experiment; for example, there might be two different interventions each being compared to the same control group.
+In this case, $X_i$ should not be coded as, say, 1, 2, and 3, for the different groups, because in that case the `funmediation` function would misinterpret the levels as if they were actually numbers.  
+To handle this, dummy-code multiple predictor variables so that, e.g., `X1` is 1 for treatment group 1 and 0 otherwise, and `X2` is 1 for treatment group 2 and 0 otherwise.  
+One of the treatment levels, perhaps representing the control or reference group, does not get its own predictor variable but is represented indirectly by having zeroes on all the others.
+
+The following code will simulate data from a study with three treatment groups, hence two binary treatment variables.
+
+ 
+```{r}
+set.seed(12345);
+nboot <- 99;
+answers <- NULL;
+f1 <- function(t) {return(-(t/2)^.5)};
+f2 <- function(t) {return(sqrt(t));}
+f3 <- function(t) {return(sin(2*3.141593*t));}
+the_simulation <- simulate_funmediation_example(nlevels=3,
+                          alpha_X = list(f1,f2),
+                          beta_M = f3,
+                          beta_X = c(.2,.3));
+```
+
+In the code above, notice that `alpha_X`, the time-varying effect of treatment on the mediator, has to be specified as a list of two functions, corresponding to the two dummy-coded dimensions of  treatment. Similarly, `beta_X`, the direct effect of treatment on outcome, is a vector of two numbers.
+
+The first few lines of the resulting dataset look like this:
+
+```{r}
+head(the_simulation$dataset)
+```
+The following code will analyze this data:
+
+```{r}
+the_data <- the_simulation$dataset;  
+ans_funmed_3groups <- funmediation(data=the_data,
+             treatment=~X1+X2,
+             mediator=M,
+             outcome=Y,
+             tvem_num_knots=5,
+             id=subject_id,
+             time=t,
+             nboot=10);
+```
+
+The `print` function works as before to print the model details.
+
+```{r}
+print(ans_funmed_3groups)
+```
+
+The `pfr` plot is essentially the same as before, since there is only one mediator.
+
+```{r}
+plot(ans_funmed_3groups, use_panes=TRUE, what_plot = "pfr")
+```
+
+The `tvem` plot now shows the time-varying effects for both predictors.
+
+```{r}
+plot(ans_funmed_3groups, use_panes=TRUE, what_plot = "tvem")
+```
+
+The `coefs` plot also includes the extra time-varying effect.  The indirect effects are not printed in the lower right pane anymore, because that pane is needed for the new time-varying effect. However, it can be viewed in the output from the `print` statement as usual. 
+
+```{r}
+plot(ans_funmed_3groups, use_panes=TRUE, what_plot = "coefs")
+```
+
+Currently the package can still only handle a single mediator variable.  It doesn't currently allow, for example, different mediator variables for different treatment variables. 
 
 # References
 
