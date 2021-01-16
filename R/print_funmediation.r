@@ -14,9 +14,10 @@ print.funmediation <- function(x, ...) {
   cat("======================================================= \n");
   cat("Functional Regression Mediation Function Output \n");
   cat("======================================================= \n");
+  treatment_variable_names <- x$important_variable_names[["treatment"]];
+  num_treatment_variables <- length(treatment_variable_names);
   cat(paste("TREATMENT:",
-            x$important_variable_names[["treatment"]],
-            "(Assumed Binary)",
+            paste(treatment_variable_names,collapse=" "), 
             "\n"));
   cat(paste("MEDIATOR:",
             x$important_variable_names[["mediator"]],
@@ -31,15 +32,19 @@ print.funmediation <- function(x, ...) {
                    "(Assumed Continuous)"),
             "\n"));
   cat("======================================================= \n");
-  cat("Indirect effect bootstrap estimate:\n");
-  cat(x$bootstrap_results$indirect_effect_boot_estimate);
-  cat("\nIndirect effect bootstrap confidence interval:");
-  cat("\n... by normal method:\n");
-  cat(c(round(x$bootstrap_results$indirect_effect_boot_norm_lower,4), ", ",
-        round(x$bootstrap_results$indirect_effect_boot_norm_upper,4)));
-  cat("\n... by percentile method:\n");
-  cat(c(round(x$bootstrap_results$indirect_effect_boot_perc_lower,4), ", ",
-        round(x$bootstrap_results$indirect_effect_boot_perc_upper,4)));
+  for (j in 1:num_treatment_variables) {
+    cat(paste("Indirect effect of",treatment_variable_names[j],":\n"))
+    cat("Indirect effect bootstrap estimate:\n");
+    cat(x$bootstrap_results$indirect_effect_boot_estimate[j]);
+    cat("\nIndirect effect bootstrap confidence interval:");
+    cat("\n... by normal method:\n");
+    cat(c(round(x$bootstrap_results$boot_norm[[j]]$normal[,2],4), ", ",
+          round(x$bootstrap_results$boot_norm[[j]]$normal[,3],4)));
+    cat("\n... by percentile method:\n");
+    cat(c(round(x$bootstrap_results$boot_perc[[j]]$percent[,4],4), ", ",
+          round(x$bootstrap_results$boot_perc[[j]]$percent[,5],4)));
+    cat("\n======================================================= \n");
+  }
   cat("\nComputation time:\n");
   print(x$bootstrap_results$time_required);
   cat("======================================================= \n");
