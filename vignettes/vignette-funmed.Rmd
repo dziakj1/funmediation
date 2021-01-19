@@ -29,7 +29,8 @@ The treatment variable $X_i$ is assumed to be binary.
 
 # Notation
 
-The mediation model for ``funmediation`` is fit in stages.  
+The mediation model for ``funmediation`` is fit in stages.
+
 First, the effect of $X_i$ on $M_i$ is fit behind the scenes as a time-varying effects (longitudinal varying coefficients) model (TVEM; see Hastie and Tibshirani, 1993; Tan et al., 2012).
 The assumed mean model is
 $E(M_i(t)) = \alpha_0(t) + \alpha_X(t) X_i$
@@ -48,9 +49,9 @@ for binary $Y_i$.
 This part of the model is fit using the ``pfr`` function in the ``refund`` R package (see Goldsmith et al., 2011).  
 Both the ``tvem`` and ``refund`` packages use the ``mgcv`` package (see Wood, 2017) for back-end calculations.
 
-In this mediation model, $\alpha_X(t)$ and $\beta_M(t)$ both must be nonzero in order for an indirect effect (i.e., mediation) to exist.  
-These two functions arise conceptually from two different kinds of functional regression;  one represents a model with a concurrent function as a response (of which TVEM is a special case), while the other represents a model with a distal scalar response (see Ramsay and Silverman, 2005).  
-However, intuitively the size of the indirect effect has to do with both of them combined.  
+In this mediation model, $\alpha_X(t)$ and $\beta_M(t)$ both must be nonzero in order for an indirect effect (i.e., mediation) to exist.
+These two functions arise conceptually from two different kinds of functional regression;  one represents a model with a concurrent function as a response (of which TVEM is a special case), while the other represents a model with a distal scalar response (see Ramsay and Silverman, 2005).
+However, intuitively the size of the indirect effect has to do with both of them combined.
 Here we operationally define the indirect effect as the integral $\int\alpha_X(t)\beta_M(t)dt$.
 Because these functions are actually only estimated on a grid of points, the integral is approximated as a weighted average of the cross-products of the estimates. 
 We obtain a bootstrap confidence interval for this quantity using the ``boot`` package.
@@ -135,14 +136,15 @@ The `print` function gives an initial overview of the results.
 print(model1)
 ```
 
-The first part of the output above summarizes the estimated indirect effect and its bootstrap confidence interval. The estimate for the indirect effect $\int \alpha_X(t)\beta_M(t)$ is given as -0.25.  Choosing the wider confidence interval in order to be conservative, a 95% confidence interval extends from about -0.35 to -0.14.  (This interval would not actually be reliable in practice because of the low number of bootstrap samples, which could be remedied by choosing a higher ``nboot``). Thus, there appears to be a significant negative indirect effect of $X$ on $Y$ mediated through $M(t)$.
+
+The first part of the output above summarizes the estimated indirect effect and its bootstrap confidence interval. The estimate for the indirect effect $\int \alpha_X(t)\beta_M(t)$ is given as about -0248.  Choosing the wider confidence interval in order to be conservative, a 95% confidence interval extends from about -0.35 to -0.14.  (This interval would not actually be reliable in practice because of the low number of bootstrap samples, which could be remedied by choosing a higher ``nboot``). Thus, there appears to be a significant negative indirect effect of $X$ on $Y$ mediated through $M(t)$.
 
 The second part of the printed output summarizes the TVEM used to predict $M(t)$ from $X$. It only provides summary information on the model that was fit.  The time-varying coefficients are not actually printed, because they are functions rather than single numbers.  They can be plotted using the ``plot`` function, as described later.  They are also stored in the ``model1`` output object, as described later. 
 
 The third part summarizes the scalar-on-function functional regression model used to predict $Y$ from $X$ and $M(t)$. This model involves scalar (non-time-varying) coefficients for the intercept and the direct effect of $X$, and a functional (time-varying) coefficient for the effect of $M(t)$.  The scalar coefficients are printed, but as before, the functional coefficient needs to be plotted using the ``plot`` function.  
 
 The fourth section of the printed output simply presents an estimate of the total effect of $X$ on $Y$ ignoring $M(t)$, obtained using the ``glm`` function.  $X$ is shown to have a total negative effect on $Y$, with an estimated coefficient of ``-0.30617`` and $p$-value of ``0.00175``.  This suggests that the $X=1$ group has statistically significantly lower average $Y$ than the $X=0$ group, irrespective of $M$.
-
+ 
 The `plot` function plots the results.  Three kinds of plots are available, represented by the options `tvem`, `pfr`, and `coef`.  The `tvem` plot shows the estimates for $\alpha_0(t)$ and $\alpha_1(t)$.
 
 ```{r}
