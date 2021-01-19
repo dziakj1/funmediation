@@ -127,21 +127,21 @@ simulate_funmediation_example <- function(
     true_indirect[this_nonreference_level] <- mean(beta_M(time_grid)*
                                                      this_alpha_X_function(time_grid));
   }
-  short_X_as_multinomial <- sample.int(n=nlevels,
-                                       size=nsub,
-                                       replace=TRUE)-1;
-  if (make_covariate_S) {
-    short_S <- rbinom(nsub,size=1,prob=.5);
-  }
   if (nlevels==2) {
-    short_X <- short_X_as_multinomial;
+  short_X <- rbinom(nsub,size=1,prob=.5);
   } else {
+    short_X_as_multinomial <- sample.int(n=nlevels,
+                                         size=nsub,
+                                         replace=TRUE)-1;
     short_X <- matrix(NA,
                       nrow=length(short_X_as_multinomial),
                       ncol=nlevels-1);
     for (j in 1:(nlevels-1)) {
       short_X[,j] <- 1*(short_X_as_multinomial==j);
     }
+  }
+  if (make_covariate_S) {
+    short_S <- rbinom(nsub,size=1,prob=.5);
   }
   #############################################
   # Simulate M from X...
