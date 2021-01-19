@@ -35,6 +35,9 @@
 #'  in the mediator M, from one observation to the next
 #' @param simulate_binary_Y  Whether Y should be generated from a binary
 #' logistic (TRUE) or Gaussian (FALSE) model
+#' @param make_covariate_S Whether to generate a random binary covariate S  
+#'  at the subject (i.e., time-invariant) level. It will be generated to have 
+#'  zero population-level relationship to the outcome. 
 #'
 #' @return A list with the following components:
 #' \describe{
