@@ -66,6 +66,13 @@
 #' @param binary_outcome Whether the outcome should be modeled as
 #' dichotomous with a logistic model (TRUE),
 #' or numerical with a normal model (FALSE).
+#' @param interpolate What kind of presmoothing to use in the 
+#' penalized functional regression -- specifically, whether 
+#' to interpolate each subject's trajectory on the mediator 
+#' (TRUE) or fit a spline to each subject's trajectory on the 
+#' mediator (FALSE).  This will be counted as TRUE if 
+#' binary_mediator is TRUE because it does
+#' not make as much sense to interpolate a binary outcome.
 #' @param nboot Number of bootstrap samples for bootstrap significance
 #' test of the overall effect. This test is done using the boot
 #' function from the boot package by Angelo Canty and Brian Ripley.
@@ -190,6 +197,7 @@ funmediation <- function(data,
                          tve_covariates_on_mediator=NULL,
                          tie_covariates_on_mediator=NULL,
                          covariates_on_outcome=NULL,
+                         interpolate=TRUE,
                          tvem_penalize=TRUE,
                          tvem_penalty_order=1,
                          tvem_spline_order=3,
@@ -242,6 +250,10 @@ funmediation <- function(data,
   outcome_variable_name <- as.character(substitute(outcome));
   long_data_for_analysis <- as.data.frame(eval.parent(data));
   id_variable <- long_data_for_analysis[,id_variable_name];
+  if (min(table(id_variable))<2) {
+    warning(paste("At least one subject has less than two ",
+    "measurement occasions.","We suggest using interpolate=FALSE"))
+  }
   time_variable <- long_data_for_analysis[,time_variable_name];
   treatment_variables <- long_data_for_analysis[,treatment_variable_names,drop=FALSE];
   num_treatment_variables <- length(treatment_variable_names);
@@ -282,11 +294,11 @@ funmediation <- function(data,
   #-------------------------------------------;
   for (this_treatment_variable_index in 1:num_treatment_variables) {
     this_treatment_variable <- treatment_variables[,this_treatment_variable_index]; 
-    if (max(unlist(lapply(split(this_treatment_variable,f=id_variable),var, na.rm=TRUE)))>1e-10) {
+    if (max(unlist(lapply(split(this_treatment_variable,f=id_variable),var)), na.rm=TRUE)>1e-10) {
       stop("Please make sure that the subject-level treatment is constant within subject.")
     }
   }
-  if (max(unlist(lapply(split(outcome_variable,f=id_variable),var, na.rm=TRUE)))>1e-10) {
+  if (max(unlist(lapply(split(outcome_variable,f=id_variable),var)), na.rm=TRUE)>1e-10) {
     stop("Please make sure that the subject-level outcome is constant within subject.")
   }
   observed_time_grid <- sort(unique(time_variable));
@@ -434,7 +446,7 @@ funmediation <- function(data,
     nobs <- length(mediator_columns);
     nsub <- length(wide_id);
     #--- EFFECT OF MEDIATOR M AND TREATMENT X ON OUTCOME Y ---;  
-    if (binary_mediator) {
+    if (binary_mediator==TRUE | interpolate==FALSE) {
       pfr_formula <- OUTCOME ~ lf(MEDIATOR,
                                   presmooth="bspline",
                                   presmooth.opts=list(nbasis=4));
