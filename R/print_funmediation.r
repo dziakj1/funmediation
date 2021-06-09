@@ -6,7 +6,6 @@
 #' @import tvem
 #' @importFrom utils getS3method
 #'
-#' @exportMethod print
 #' @export
 #' @method print funmediation
 
@@ -17,7 +16,7 @@ print.funmediation <- function(x, ...) {
   treatment_variable_names <- x$important_variable_names[["treatment"]];
   num_treatment_variables <- length(treatment_variable_names);
   cat(paste("TREATMENT:",
-            paste(treatment_variable_names,collapse=" "), 
+            paste(treatment_variable_names,collapse=" "),
             "\n"));
   cat(paste("MEDIATOR:",
             x$important_variable_names[["mediator"]],

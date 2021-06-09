@@ -31,7 +31,6 @@
 #'
 #' @import tvem
 #' @importFrom graphics par plot text lines
-#' @exportMethod plot
 #' @export
 #' @method plot funmediation
 #'
