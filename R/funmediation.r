@@ -222,6 +222,7 @@ funmediation <- function(data,
   m$binary_outcome <- NULL;
   m$tvem_num_knots <- NULL;
   m$tvem_penalty_order <- NULL;
+  m$interpolate <- NULL;
   m$tvem_spline_order <- NULL;
   m$tvem_penalize <- NULL;
   m$tvem_do_loop <- NULL;
@@ -252,7 +253,7 @@ funmediation <- function(data,
   id_variable <- long_data_for_analysis[,id_variable_name];
   if (min(table(id_variable))<2) {
     warning(paste("At least one subject has less than two ",
-    "measurement occasions.","We suggest using interpolate=FALSE"))
+                  "measurement occasions.","We suggest using interpolate=FALSE"))
   }
   time_variable <- long_data_for_analysis[,time_variable_name];
   treatment_variables <- long_data_for_analysis[,treatment_variable_names,drop=FALSE];
@@ -293,12 +294,14 @@ funmediation <- function(data,
   #--- CONVERT MEDIATOR M TO WIDE FORM -------;
   #-------------------------------------------;
   for (this_treatment_variable_index in 1:num_treatment_variables) {
-    this_treatment_variable <- treatment_variables[,this_treatment_variable_index]; 
-    if (max(unlist(lapply(split(this_treatment_variable,f=id_variable),var)), na.rm=TRUE)>1e-10) {
+    this_treatment_variable <- treatment_variables[,this_treatment_variable_index];
+    variance_check_vector_1 <- unlist(lapply(split(this_treatment_variable,f=id_variable),var));
+    if (max(variance_check_vector_1, na.rm=TRUE)>1e-10) {
       stop("Please make sure that the subject-level treatment is constant within subject.")
     }
   }
-  if (max(unlist(lapply(split(outcome_variable,f=id_variable),var)), na.rm=TRUE)>1e-10) {
+  variance_check_vector_2 <- unlist(lapply(split(outcome_variable,f=id_variable),var));
+  if (max(variance_check_vector_2, na.rm=TRUE)>1e-10) {
     stop("Please make sure that the subject-level outcome is constant within subject.")
   }
   observed_time_grid <- sort(unique(time_variable));
@@ -331,39 +334,45 @@ funmediation <- function(data,
   for (this_id in 1:length(wide_id)) {
     these_rows <- which(id_variable==wide_id[this_id]);
     if (length(these_rows)>0) {
-        for (j in 1:num_treatment_variables) { 
-          if (min(treatment_variables[these_rows,j,drop=FALSE], na.rm=TRUE)!=
-              max(treatment_variables[these_rows,j,drop=FALSE], na.rm=TRUE)) {
+      for (j in 1:num_treatment_variables) {
+        treatment_check_vector <- treatment_variables[these_rows,j,drop=FALSE];
+        if (sum(!is.na(treatment_check_vector))>0) {
+          if (min(treatment_check_vector, na.rm=TRUE)!=
+              max(treatment_check_vector, na.rm=TRUE)) {
+            print(treatment_check_vector);
             stop("Please make sure the treatment is the same for each observation within subject.")
           }
-          temp_treatment_variables_matrix[this_id,j] <- as.numeric(treatment_variables[min(these_rows),j,drop=FALSE]);
         }
+        temp_treatment_variables_matrix[this_id,j] <- as.numeric(treatment_variables[min(these_rows),j,drop=FALSE]);
+      }
+      if (sum(!is.na(outcome_variable[these_rows]))>0) {
         if (min(outcome_variable[these_rows], na.rm=TRUE)!=
             max(outcome_variable[these_rows], na.rm=TRUE)) {
           stop("Please make sure the outcome is the same for each observation within subject.")
         }
-        OUTCOME[this_id] <- outcome_variable[min(these_rows)];
-        if (num_covariates_on_outcome>0) {
-          if (max(apply(covariates_on_outcome_data[these_rows,,drop=FALSE],2,var, na.rm = TRUE), na.rm = TRUE)>0) {
-            print(paste("Possible problem in covariates_on_outcome_data for participant",wide_id[this_id]));
-            print(covariates_on_outcome_data[these_rows,,drop=FALSE]);
-            stop("Please make sure that the covariates on the outcome do not vary within subject for this model.")
-          }
+      }
+      OUTCOME[this_id] <- outcome_variable[min(these_rows)];
+      if (num_covariates_on_outcome>0) {
+        if (max(apply(covariates_on_outcome_data[these_rows,,drop=FALSE],2,var, na.rm = TRUE), na.rm = TRUE)>0) {
+          print(paste("Possible problem in covariates_on_outcome_data for participant",wide_id[this_id]));
+          print(covariates_on_outcome_data[these_rows,,drop=FALSE]);
+          stop("Please make sure that the covariates on the outcome do not vary within subject for this model.")
         }
-        if (num_tve_covariates_on_mediator>0) {
-          if (max(apply(tve_covariates_on_mediator_data[these_rows,,drop=FALSE],2,var, na.rm = TRUE), na.rm = TRUE)>0) {
-            print(paste("Possible problem in tve_covariates_on_mediator_data for participant",wide_id[this_id]));
-            print(tve_covariates_on_mediator_data[these_rows,,drop=FALSE]);
-            stop("Please make sure that the covariates on the mediator do not vary within subject for this model.")
-          }
+      }
+      if (num_tve_covariates_on_mediator>0) {
+        if (max(apply(tve_covariates_on_mediator_data[these_rows,,drop=FALSE],2,var, na.rm = TRUE), na.rm = TRUE)>0) {
+          print(paste("Possible problem in tve_covariates_on_mediator_data for participant",wide_id[this_id]));
+          print(tve_covariates_on_mediator_data[these_rows,,drop=FALSE]);
+          stop("Please make sure that the covariates on the mediator do not vary within subject for this model.")
         }
-        if (num_tie_covariates_on_mediator>0) {
-          if (max(apply(tie_covariates_on_mediator_data[these_rows,,drop=FALSE],2,var, na.rm = TRUE), na.rm = TRUE)>0) {
-            print(paste("Possible problem in tie_covariates_on_mediator_data for participant",wide_id[this_id]));
-            print(tie_covariates_on_mediator_data[these_rows,,drop=FALSE]);
-            stop("Please make sure that the covariates on the mediator do not vary within subject for this model.")
-          }
+      }
+      if (num_tie_covariates_on_mediator>0) {
+        if (max(apply(tie_covariates_on_mediator_data[these_rows,,drop=FALSE],2,var, na.rm = TRUE), na.rm = TRUE)>0) {
+          print(paste("Possible problem in tie_covariates_on_mediator_data for participant",wide_id[this_id]));
+          print(tie_covariates_on_mediator_data[these_rows,,drop=FALSE]);
+          stop("Please make sure that the covariates on the mediator do not vary within subject for this model.")
         }
+      }
       stopifnot(length(observed_time_grid)>0);
       for (this_time in 1:length(observed_time_grid)) {
         this_data <- which(id_variable==wide_id[this_id] &
