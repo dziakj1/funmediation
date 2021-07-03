@@ -41,8 +41,8 @@
 #'  assignment, assumed to be unidimensional (either binary
 #'  or else numeric).  We recommend a binary (dichotomous) treatment with
 #'  0 for control and 1 for experimental).  The values of this variable
-#'  should be the same for each row for a given subject.  If there are 
-#'  more than one treatment variables, such as a dummy-coded exposure with 
+#'  should be the same for each row for a given subject.  If there are
+#'  more than one treatment variables, such as a dummy-coded exposure with
 #'  more than two levels, specify them as a formula such as ~x1+x2.
 #' @param mediator The name of the mediator variable. The values of
 #' this variable can (and should) vary within each subject.
@@ -66,11 +66,11 @@
 #' @param binary_outcome Whether the outcome should be modeled as
 #' dichotomous with a logistic model (TRUE),
 #' or numerical with a normal model (FALSE).
-#' @param interpolate What kind of presmoothing to use in the 
-#' penalized functional regression -- specifically, whether 
-#' to interpolate each subject's trajectory on the mediator 
-#' (TRUE) or fit a spline to each subject's trajectory on the 
-#' mediator (FALSE).  This will be counted as TRUE if 
+#' @param interpolate What kind of presmoothing to use in the
+#' penalized functional regression -- specifically, whether
+#' to interpolate each subject's trajectory on the mediator
+#' (TRUE) or fit a spline to each subject's trajectory on the
+#' mediator (FALSE).  This will be counted as TRUE if
 #' binary_mediator is TRUE because it does
 #' not make as much sense to interpolate a binary outcome.
 #' @param nboot Number of bootstrap samples for bootstrap significance
@@ -90,7 +90,7 @@
 #' is passed on to the tvem function as num_knots, an integer representing
 #' the number of interior knots per B-spline. If tvem_do_loop is
 #' TRUE then tvem_num_knots is reinterpreted as the highest number of
-#' interior knots to try.   
+#' interior knots to try.
 #' @param tvem_use_bic This parameter only matters if tvem_do_loop is TRUE.
 #' If tvem_do_loop is TRUE
 #' and tvem_use_bic is TRUE, then the information criterion used will be
@@ -241,23 +241,22 @@ funmediation <- function(data,
   } else {
     if(class(substitute(treatment))=="name") {
       # Exposure was specified as a single variable.
-      treatment_variable_names <- as.character(substitute(treatment)); 
+      treatment_variable_names <- as.character(substitute(treatment));
     } else {
       stop(paste("Please specify the_predictors as a name or formula",
                  "i.e., in the form x1 or ~x1+x2."));
     }
-  } 
+  }
   mediator_variable_name <- as.character(substitute(mediator));
   outcome_variable_name <- as.character(substitute(outcome));
   long_data_for_analysis <- as.data.frame(eval.parent(data));
   id_variable <- long_data_for_analysis[,id_variable_name];
   if (min(table(id_variable))<2) {
-    message <- paste("At least one subject has less than two",
-                  "measurement occasions.");
-	if (interpolate==TRUE) {
-	   message <- paste(message, "We suggest using interpolate=FALSE");
-	}
-	warning(message);
+    message <- "At least one subject has less than two measurement occasions.";
+    if (interpolate==TRUE) {
+      message <- paste(message, "We suggest using interpolate=FALSE.");
+    }
+    warning(message);
   }
   time_variable <- long_data_for_analysis[,time_variable_name];
   treatment_variables <- long_data_for_analysis[,treatment_variable_names,drop=FALSE];
@@ -444,7 +443,7 @@ funmediation <- function(data,
         assign(paste("TREATMENT",j,sep=""), unlist(local_wide_data[,treatment_columns[j]]));
       }
     } else {
-      TREATMENT <- unlist(local_wide_data[,treatment_columns]);   
+      TREATMENT <- unlist(local_wide_data[,treatment_columns]);
     }
     OUTCOME <- unlist(local_wide_data[,outcome_column]);
     if (num_covariates_on_outcome>0) {
@@ -458,20 +457,20 @@ funmediation <- function(data,
     }
     nobs <- length(mediator_columns);
     nsub <- length(wide_id);
-    #--- EFFECT OF MEDIATOR M AND TREATMENT X ON OUTCOME Y ---;  
+    #--- EFFECT OF MEDIATOR M AND TREATMENT X ON OUTCOME Y ---;
     if (binary_mediator==TRUE | interpolate==FALSE) {
       pfr_formula <- OUTCOME ~ lf(MEDIATOR,
-	                              argvals=observed_time_grid, 
+                                  argvals=observed_time_grid,
                                   presmooth="bspline",
                                   presmooth.opts=list(nbasis=4));
     } else {
       pfr_formula <- OUTCOME ~ lf(MEDIATOR,
-	                              argvals=observed_time_grid, 
+                                  argvals=observed_time_grid,
                                   presmooth="interpolate");
     }
     if (length(treatment_columns)==1) {
       new_one <- as.formula("~.+TREATMENT");
-      pfr_formula <- update(pfr_formula,new_one); 
+      pfr_formula <- update(pfr_formula,new_one);
     } else {
       for (j in 1:length(treatment_columns)) {
         new_one <- as.formula(paste("~.+TREATMENT",j,sep=""));
@@ -501,14 +500,14 @@ funmediation <- function(data,
       print(pfr_formula);
       print(funreg_MY);
       stop("Error in running pfr.")
-    } 
+    }
     beta_int_estimate <- as.numeric(funreg_MY$coefficient["(Intercept)"]);
     beta_int_se <- as.numeric(summary(funreg_MY)$se["(Intercept)"]);
     if (length(treatment_columns)==1) {
       beta_X_estimate <-  as.numeric(funreg_MY$coefficient["TREATMENT"]);
       beta_X_se <- as.numeric(summary(funreg_MY)$se["TREATMENT"]);
     } else {
-      beta_X_estimate <- rep(NA,length(treatment_columns)); 
+      beta_X_estimate <- rep(NA,length(treatment_columns));
       beta_X_se <- rep(NA,length(treatment_columns));
       for (j in 1:length(treatment_columns)) {
         beta_X_estimate[j] <-  as.numeric(funreg_MY$coefficient[paste("TREATMENT",j,sep="")]);
@@ -530,15 +529,15 @@ funmediation <- function(data,
       glm_formula <- OUTCOME ~ TREATMENT;
     } else {
       temp_string <- "OUTCOME ~ ";
-      for (j in 1:length(treatment_columns)) { 
+      for (j in 1:length(treatment_columns)) {
         temp_string <- paste(temp_string,
                              " TREATMENT",
                              j,
                              ifelse(j<length(treatment_columns),"+",""),
-                             sep="") 
-      } 
+                             sep="")
+      }
       glm_formula <- as.formula(temp_string);
-    } 
+    }
     if (num_covariates_on_outcome>0) {
       for (this_one in 1:num_covariates_on_outcome) {
         new_one <- as.formula(paste("~.+",covariates_on_outcome_names[this_one],sep=""));
@@ -575,7 +574,7 @@ funmediation <- function(data,
           tau_X_pvalue[j] <- summary(model_for_total_effect_XY)$coefficients[this_treatment_variable_name,"Pr(>|t|)"];
         }
       }
-    } 
+    }
     #--- EFFECT OF TREATMENT X ON MEDIATOR M ---;
     if (length(treatment_columns)==1) {
       local_long_data <- data.frame(id=rep(wide_id, each=nobs),
@@ -597,7 +596,7 @@ funmediation <- function(data,
         temp_string <- paste(temp_string,
                              ifelse(j>1,"+",""),
                              paste("TREATMENT",j,sep=""));
-      } 
+      }
       tvem_formula1 <- as.formula(temp_string);
       local_long_data <- cbind(local_long_data,
                                MEDIATOR=as.vector(t(MEDIATOR)));
@@ -650,7 +649,7 @@ funmediation <- function(data,
                                                                 "Pseudo_AIC"));
       tvem_XM <- tvem_results_list[[which.min(IC_values)]];
     } else {
-      if (get_details) { 
+      if (get_details) {
         tvem_XM <- tvem::tvem(data=local_long_data,
                               formula=tvem_formula1,
                               time=time,
@@ -685,7 +684,7 @@ funmediation <- function(data,
         stop("Dimension error in functional mediation function;")
       }
       indirect_effect_estimate <- mean(alpha_X_estimate*beta_M_estimate);
-    } else { 
+    } else {
       alpha_X_estimate <- list();
       alpha_X_se <- list();
       indirect_effect_estimate <- rep(NA,length(treatment_columns));
@@ -694,7 +693,7 @@ funmediation <- function(data,
         alpha_X_se[[j]] <- tvem_XM$grid_fitted_coefficients[[1+j]]$standard_error;
         indirect_effect_estimate[j] <- mean(alpha_X_estimate[[j]]*beta_M_estimate[[j]]);
       }
-    } 
+    }
     if (get_details) {
       answer_list <- list(time_grid=time_grid_for_fitting,
                           alpha_int_estimate=alpha_int_estimate,
@@ -749,14 +748,14 @@ funmediation <- function(data,
                       R=nboot);
   cat("Done bootstrapping.\n");
   if (nboot<50) {
-  warning("The number of bootstrap samples was very small and results will be dubious.");
+    warning("The number of bootstrap samples was very small and results will be dubious.");
   }
   boot_norm <- list();
   boot_basic <- list();
   boot_perc <- list();
   indirect_effect_boot_estimate <- rep(NA, num_treatment_variables);
   indirect_effect_boot_se <- rep(NA, num_treatment_variables);
-  for (j in 1:num_treatment_variables) { 
+  for (j in 1:num_treatment_variables) {
     boot_norm[[j]] <- boot::boot.ci(boot1,conf=1-boot_level,index=j,type="norm");
     boot_basic[[j]] <- boot::boot.ci(boot1,conf=1-boot_level,index=j,type="basic");
     boot_perc[[j]] <- boot::boot.ci(boot1,conf=1-boot_level,index=j,type="perc");
