@@ -435,6 +435,9 @@ funmediation <- function(data,
                                          indices,
                                          get_details=FALSE) {
     local_wide_data <- wide_data[indices,];
+    usable <- which((apply(!is.na(local_wide_data[,mediator_columns]),1,sum)>=1) & 
+                      !is.na(local_wide_data[,outcome_column])); 
+    local_wide_data <- local_wide_data[usable,];
     #--- Take data frame apart into pieces to use with pfr function
     MEDIATOR <- as.matrix(local_wide_data[,mediator_columns]);
     wide_id <- unlist(local_wide_data[,wide_id_column]);
