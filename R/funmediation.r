@@ -435,6 +435,9 @@ funmediation <- function(data,
                                          indices,
                                          get_details=FALSE) {
     local_wide_data <- wide_data[indices,];
+    usable <- which((apply(!is.na(local_wide_data[,mediator_columns]),1,sum)>=1) & 
+                      !is.na(local_wide_data[,outcome_column])); 
+    local_wide_data <- local_wide_data[usable,];
     #--- Take data frame apart into pieces to use with pfr function
     MEDIATOR <- as.matrix(local_wide_data[,mediator_columns]);
     wide_id <- unlist(local_wide_data[,wide_id_column]);
@@ -622,6 +625,18 @@ funmediation <- function(data,
     }
     local_long_data <- local_long_data[which(!is.na(local_long_data$MEDIATOR)),];
     # listwise deletion to remove empty observations;
+
+
+
+    if (min(table(local_long_data$id))<2) {
+      message <- "At least one subject has less than two non-missing measurement occasions.";
+      if (interpolate==TRUE) {
+        message <- paste(message, "We suggest using interpolate=FALSE.");
+      }
+      warning(message);
+    }
+
+
     if (tvem_do_loop) {
       tvem_results_list <- list();
       max_knots <- tvem_num_knots;
@@ -770,6 +785,7 @@ funmediation <- function(data,
                             boot_basic=boot_basic,
                             boot_perc=boot_perc,
                             boot_level=boot_level,
+                            nboot=nboot,
                             time_required=difftime(after_boot,before_boot));
   if (tvem_do_loop) {
     colnames(ICs_table_from_bootstraps) <- paste(0:(ncol(ICs_table_from_bootstraps)-1),"InteriorKnots",sep="");

@@ -39,11 +39,13 @@ print.funmediation <- function(x, ...) {
     cat("\n... by normal method:\n");
     cat(c(round(x$bootstrap_results$boot_norm[[j]]$normal[,2],4), ", ",
           round(x$bootstrap_results$boot_norm[[j]]$normal[,3],4)));
-    cat("\n... by percentile method:\n");
-    cat(c(round(x$bootstrap_results$boot_perc[[j]]$percent[,4],4), ", ",
+    if (x$bootstrap_results$nboot>=50) {
+      cat("\n... by percentile method:\n");
+      cat(c(round(x$bootstrap_results$boot_perc[[j]]$percent[,4],4), ", ",
           round(x$bootstrap_results$boot_perc[[j]]$percent[,5],4)));
+    }
     cat("\n======================================================= \n");
-  }
+      }
   cat("\nComputation time:\n");
   print(x$bootstrap_results$time_required);
   cat("======================================================= \n");
