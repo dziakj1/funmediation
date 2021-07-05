@@ -435,8 +435,8 @@ funmediation <- function(data,
                                          indices,
                                          get_details=FALSE) {
     local_wide_data <- wide_data[indices,];
-    usable <- which((apply(!is.na(local_wide_data[,mediator_columns]),1,sum)>=1) & 
-                      !is.na(local_wide_data[,outcome_column])); 
+    usable <- which((apply(!is.na(local_wide_data[,mediator_columns]),1,sum)>=1) &
+                      !is.na(local_wide_data[,outcome_column]));
     local_wide_data <- local_wide_data[usable,];
     #--- Take data frame apart into pieces to use with pfr function
     MEDIATOR <- as.matrix(local_wide_data[,mediator_columns]);
@@ -626,16 +626,17 @@ funmediation <- function(data,
     local_long_data <- local_long_data[which(!is.na(local_long_data$MEDIATOR)),];
     # listwise deletion to remove empty observations;
 
+    if (get_details) {
 
-
-    if (min(table(local_long_data$id))<2) {
-      message <- "At least one subject has less than two non-missing measurement occasions.";
-      if (interpolate==TRUE) {
-        message <- paste(message, "We suggest using interpolate=FALSE.");
+      if (min(table(local_long_data$id))<2) {
+        message <- "At least one subject has less than two non-missing measurement occasions.";
+        if (interpolate==TRUE) {
+          message <- paste(message, "We suggest using interpolate=FALSE.");
+        }
+        warning(message);
       }
-      warning(message);
-    }
 
+    }
 
     if (tvem_do_loop) {
       tvem_results_list <- list();
