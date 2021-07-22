@@ -9,6 +9,7 @@
 #' @param x The funmediation object to be plotted.
 #' @param use_panes Whether to plot multiple coefficient functions in a single image.
 #' @param what_plot One of "pfr","coefs", or "tvem."  These options are as follows:
+#' @param alpha_level Default is .05 for pointwise 95% confidence intervals.
 #' \describe{
 #' \item{pfr}{For a "pfr" plot, the functional coefficient for predicting the
 #' outcome, Y, from the mediator, M (conditional on X), is shown, by calling
@@ -31,6 +32,7 @@
 #'
 #' @import tvem
 #' @importFrom graphics par plot text lines
+#' @importFrom stats qnorm
 #' @export
 #' @method plot funmediation
 #'
@@ -38,7 +40,9 @@ plot.funmediation <- function(x,
                               use_panes=TRUE,
                               what_plot=c("pfr",
                                           "coefs",
-                                          "tvem"), ...) {
+                                          "tvem"),
+                              alpha_level=.05,
+                              ...) {
   num_treatment_variables <- length(x$important_variable_names$treatment);
   if (use_panes==FALSE) {par(mfrow=c(1,1));}
   what <- match.arg(what_plot)
@@ -69,9 +73,9 @@ plot.funmediation <- function(x,
          ylab=expression(alpha[int](t)),
          main="Intercept for Mediator");
     lines(x$original_results$time_grid,
-          x$original_results$alpha_int_estimate-1.96*x$original_results$alpha_int_se);
+          x$original_results$alpha_int_estimate-qnorm(1-alpha_level/2)*x$original_results$alpha_int_se);
     lines(x$original_results$time_grid,
-          x$original_results$alpha_int_estimate+1.96*x$original_results$alpha_int_se);
+          x$original_results$alpha_int_estimate+qnorm(1-alpha_level/2)*x$original_results$alpha_int_se);
     if (num_treatment_variables==1) {
       plot(x$original_results$time_grid,
            x$original_results$alpha_X_estimate,
@@ -79,9 +83,9 @@ plot.funmediation <- function(x,
            ylab=expression(alpha[X](t)),
            main="Treatment on Mediator");
       lines(x$original_results$time_grid,
-            x$original_results$alpha_X_estimate-1.96*x$original_results$alpha_X_se);
+            x$original_results$alpha_X_estimate-qnorm(1-alpha_level/2)*x$original_results$alpha_X_se);
       lines(x$original_results$time_grid,
-            x$original_results$alpha_X_estimate+1.96*x$original_results$alpha_X_se);
+            x$original_results$alpha_X_estimate+qnorm(1-alpha_level/2)*x$original_results$alpha_X_se);
     }
     if (num_treatment_variables==2 |
         num_treatment_variables==3 |
@@ -94,9 +98,9 @@ plot.funmediation <- function(x,
              main=paste(x$important_variable_names$treatment[j],
                         "on Mediator"));
         lines(x$original_results$time_grid,
-              x$original_results$alpha_X_estimate[[j]]-1.96*x$original_results$alpha_X_se[[j]]);
+              x$original_results$alpha_X_estimate[[j]]-qnorm(1-alpha_level/2)*x$original_results$alpha_X_se[[j]]);
         lines(x$original_results$time_grid,
-              x$original_results$alpha_X_estimate[[j]]+1.96*x$original_results$alpha_X_se[[j]]);
+              x$original_results$alpha_X_estimate[[j]]+qnorm(1-alpha_level/2)*x$original_results$alpha_X_se[[j]]);
       }
     }
     plot(x$original_results$time_grid,
@@ -105,9 +109,9 @@ plot.funmediation <- function(x,
          ylab=expression(beta[M](t)),
          main="Mediator on Outcome");
     lines(x$original_results$time_grid,
-          x$original_results$beta_M_estimate-1.96*x$original_results$beta_M_se);
+          x$original_results$beta_M_estimate-qnorm(1-alpha_level/2)*x$original_results$beta_M_se);
     lines(x$original_results$time_grid,
-          x$original_results$beta_M_estimate+1.96*x$original_results$beta_M_se);
+          x$original_results$beta_M_estimate+qnorm(1-alpha_level/2)*x$original_results$beta_M_se);
     if (num_treatment_variables==1 & use_panes==TRUE) {
       # There is an extra pane, so we can write the indirect effect
       # estimate in the white space.

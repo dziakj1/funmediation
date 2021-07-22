@@ -435,8 +435,8 @@ funmediation <- function(data,
                                          indices,
                                          get_details=FALSE) {
     local_wide_data <- wide_data[indices,];
-    usable <- which((apply(!is.na(local_wide_data[,mediator_columns]),1,sum)>=1) &
-                      !is.na(local_wide_data[,outcome_column]));
+    usable <- which((apply(!is.na(local_wide_data[,mediator_columns]),1,sum)>=1) & 
+                      !is.na(local_wide_data[,outcome_column])); 
     local_wide_data <- local_wide_data[usable,];
     #--- Take data frame apart into pieces to use with pfr function
     MEDIATOR <- as.matrix(local_wide_data[,mediator_columns]);
@@ -625,9 +625,9 @@ funmediation <- function(data,
     }
     local_long_data <- local_long_data[which(!is.na(local_long_data$MEDIATOR)),];
     # listwise deletion to remove empty observations;
-
+    
     if (get_details) {
-
+      
       if (min(table(local_long_data$id))<2) {
         message <- "At least one subject has less than two non-missing measurement occasions.";
         if (interpolate==TRUE) {
@@ -635,9 +635,9 @@ funmediation <- function(data,
         }
         warning(message);
       }
-
+      
     }
-
+    
     if (tvem_do_loop) {
       tvem_results_list <- list();
       max_knots <- tvem_num_knots;
@@ -709,7 +709,7 @@ funmediation <- function(data,
         alpha_X_se[[j]] <- tvem_XM$grid_fitted_coefficients[[1+j]]$standard_error;
         indirect_effect_estimate[j] <- mean(alpha_X_estimate[[j]]*beta_M_estimate[[j]]);
       }
-    }
+    } 
     if (get_details) {
       answer_list <- list(time_grid=time_grid_for_fitting,
                           alpha_int_estimate=alpha_int_estimate,
@@ -727,7 +727,7 @@ funmediation <- function(data,
                           tau_int_se=tau_int_se,
                           tau_X_estimate=tau_X_estimate,
                           tau_X_se=tau_X_se,
-                          tau_X_pvalue=tau_X_pvalue,
+                          tau_X_pvalue=tau_X_pvalue, 
                           indirect_effect_estimate=indirect_effect_estimate,
                           tvem_XM_details=tvem_XM,
                           funreg_MY_details=funreg_MY,
@@ -744,7 +744,8 @@ funmediation <- function(data,
       if (tvem_do_loop) {
         ICs_table_from_bootstraps <<- rbind(ICs_table_from_bootstraps,IC_table[,2]);
       }
-      return(indirect_effect_estimate);
+      return(c(indirect_effect_estimate=indirect_effect_estimate,
+               direct_effect_estimate=beta_X_estimate));
     }
   }
   #------------------------------------------;
@@ -766,25 +767,62 @@ funmediation <- function(data,
   if (nboot<50) {
     warning("The number of bootstrap samples was very small and results will be dubious.");
   }
-  boot_norm <- list();
-  boot_basic <- list();
-  boot_perc <- list();
+  indirect_effect_boot_norm <- list();
+  indirect_effect_boot_basic <- list();
+  indirect_effect_boot_perc <- list();
   indirect_effect_boot_estimate <- rep(NA, num_treatment_variables);
   indirect_effect_boot_se <- rep(NA, num_treatment_variables);
+  direct_effect_boot_norm <- list();
+  direct_effect_boot_basic <- list();
+  direct_effect_boot_perc <- list();
+  direct_effect_boot_estimate <- rep(NA, num_treatment_variables);
+  direct_effect_boot_se <- rep(NA, num_treatment_variables);
   for (j in 1:num_treatment_variables) {
-    boot_norm[[j]] <- boot::boot.ci(boot1,conf=1-boot_level,index=j,type="norm");
-    boot_basic[[j]] <- boot::boot.ci(boot1,conf=1-boot_level,index=j,type="basic");
-    boot_perc[[j]] <- boot::boot.ci(boot1,conf=1-boot_level,index=j,type="perc");
-    indirect_effect_boot_estimate[j] <- boot::norm.ci(boot1,conf=.0001,index=j)[2];
+    indirect_effect_boot_estimate[j] <- boot::norm.ci(boot1,
+                                                      conf=.0001,
+                                                      index=j)[2];
     indirect_effect_boot_se[j] <- sd(boot1$t[,j]);
+    indirect_effect_boot_norm[[j]] <- boot::boot.ci(boot1,
+                                                    conf=1-boot_level,
+                                                    index=j,
+                                                    type="norm");
+    indirect_effect_boot_basic[[j]] <- boot::boot.ci(boot1,
+                                                     conf=1-boot_level,
+                                                     index=j,
+                                                     type="basic");
+    indirect_effect_boot_perc[[j]] <- boot::boot.ci(boot1,
+                                                    conf=1-boot_level,
+                                                    index=j,
+                                                    type="perc");
+  }
+  for (j in 1:num_treatment_variables) {
+    direct_effect_boot_estimate[j] <- boot::norm.ci(boot1,conf=.0001,index=num_treatment_variables+j)[2];
+    direct_effect_boot_se[j] <- sd(boot1$t[,num_treatment_variables+j]);
+    direct_effect_boot_norm[[j]] <- boot::boot.ci(boot1,
+                                             conf=1-boot_level,
+                                             index=num_treatment_variables+j,
+                                             type="norm");
+    direct_effect_boot_basic[[j]] <- boot::boot.ci(boot1,
+                                              conf=1-boot_level,
+                                              index=num_treatment_variables+j,
+                                              type="basic");
+    direct_effect_boot_perc[[j]] <- boot::boot.ci(boot1,
+                                             conf=1-boot_level,
+                                             index=num_treatment_variables+j,
+                                             type="perc");
   }
   after_boot <- Sys.time();
   bootstrap_results <- list(indirect_effect_boot_estimate=indirect_effect_boot_estimate,
                             indirect_effect_boot_se=indirect_effect_boot_se,
+                            indirect_effect_boot_norm=indirect_effect_boot_norm,
+                            indirect_effect_boot_basic=indirect_effect_boot_basic,
+                            indirect_effect_boot_perc=indirect_effect_boot_perc,
+                            direct_effect_boot_estimate=direct_effect_boot_estimate,
+                            direct_effect_boot_se=direct_effect_boot_se,
+                            direct_effect_boot_norm=direct_effect_boot_norm,
+                            direct_effect_boot_basic=direct_effect_boot_basic,
+                            direct_effect_boot_perc=direct_effect_boot_perc,
                             bootstrap_output=boot1,
-                            boot_norm=boot_norm,
-                            boot_basic=boot_basic,
-                            boot_perc=boot_perc,
                             boot_level=boot_level,
                             nboot=nboot,
                             time_required=difftime(after_boot,before_boot));
