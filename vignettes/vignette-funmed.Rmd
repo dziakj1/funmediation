@@ -183,13 +183,20 @@ plot(model1, what_plot="pfr")
 
 The function tends to be nonzero at least for higher values of time, and generally seems to be steadily increasing. One possible interpretation is that the mediator becomes more important at later times. Alternatively, perhaps individuals who increase more (or decrease less) on average over time on the mediator tend to have a higher value on the outcome (see Dziak et al., 2019).
 
+The `pfrgam` plot does the same thing as the `pfr` plot, but with a slightly different implementation based on the `plot.gam` method from the `mgcv` library.
+
+
+```{r}
+plot(model1, what_plot="pfrgam")
+```
+
 Last, the `coef` plot summarizes all of the most important coefficients estimated in the model.  The upper left and upper right panes show the estimates of $\alpha_0(t)$ and $\alpha_X(t)$ from the model of the effect of $X$ on $M(t)$. The lower left shows the estimate of $\beta_M(t)$ from the model of the effect of $M(t)$ on $Y$ given $X$.  In the lower right panel, the estimate of the indirect effect is printed (not plotted, because it is a single number).
 
 ```{r}
 plot(model1, what_plot="coef")
 ```
 
-Because we have already looked at the relevant plots before using the other two options, there is nothing new to interpret in the ``coef`` plot.
+Because we have already looked at the relevant plots before using the ``coef``  option, there is nothing new to interpret in the ``coef`` plot; it is just intended as a convenient summary.
 
 ## Exploring Information in the Output Objects
 
