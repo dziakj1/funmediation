@@ -228,7 +228,8 @@ funmediation <- function(data,
   m$tvem_do_loop <- NULL;
   m$grid <- NULL;
   m$nboot <- NULL;
-  m$data <- as.data.frame(data);
+  data <- as.data.frame(data);
+  m$data <- data;
   m[[1]] <- quote(stats::model.frame);
   m <- eval.parent(m);
   id_variable_name <- as.character(substitute(id));
