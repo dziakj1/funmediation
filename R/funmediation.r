@@ -78,7 +78,7 @@
 #' function from the boot package by Angelo Canty and Brian Ripley.
 #' It differs somewhat from the bootstrap approach used in a similar
 #' context by Lindquist (2012).  We recommend using at least 200 bootstrap
-#' samples and preferably 500 or more if time permits.
+#' samples and preferably 500 or more.
 #' @param boot_level One minus the nominal coverage for
 #' the bootstrap confidence interval estimates.
 #' @param tvem_spline_order Input to be passed on to the tvem function
@@ -228,9 +228,7 @@ funmediation <- function(data,
   m$tvem_do_loop <- NULL;
   m$grid <- NULL;
   m$nboot <- NULL;
-  if (is.matrix(eval.parent(m$data))) {
-    m$data <- as.data.frame(data);
-  }
+  m$data <- as.data.frame(data);
   m[[1]] <- quote(stats::model.frame);
   m <- eval.parent(m);
   id_variable_name <- as.character(substitute(id));
@@ -691,6 +689,7 @@ funmediation <- function(data,
       }
     }
     #--- MEDIATED EFFECT OF TREATMENT X THROUGH MEDIATOR M ON OUTCOME Y ---;
+    interval_width <- max(time_variable)-min(time_variable);
     alpha_int_estimate <- tvem_XM$grid_fitted_coefficients[[1]]$estimate;
     alpha_int_se <- tvem_XM$grid_fitted_coefficients[[1]]$standard_error;
     if (length(treatment_columns)==1) {
@@ -699,7 +698,7 @@ funmediation <- function(data,
       if (length(alpha_X_estimate)!=length(beta_M_estimate)) {
         stop("Dimension error in functional mediation function;")
       }
-      indirect_effect_estimate <- mean(alpha_X_estimate*beta_M_estimate);
+      indirect_effect_estimate <- mean(alpha_X_estimate*beta_M_estimate)*interval_width;
     } else {
       alpha_X_estimate <- list();
       alpha_X_se <- list();
@@ -707,7 +706,7 @@ funmediation <- function(data,
       for (j in 1:length(treatment_columns)) {
         alpha_X_estimate[[j]] <- tvem_XM$grid_fitted_coefficients[[1+j]]$estimate;
         alpha_X_se[[j]] <- tvem_XM$grid_fitted_coefficients[[1+j]]$standard_error;
-        indirect_effect_estimate[j] <- mean(alpha_X_estimate[[j]]*beta_M_estimate[[j]]);
+        indirect_effect_estimate[j] <- mean(alpha_X_estimate[[j]]*beta_M_estimate[[j]])*interval_width;
       }
     } 
     if (get_details) {
@@ -728,6 +727,7 @@ funmediation <- function(data,
                           tau_X_estimate=tau_X_estimate,
                           tau_X_se=tau_X_se,
                           tau_X_pvalue=tau_X_pvalue, 
+                          interval_width=interval_width,
                           indirect_effect_estimate=indirect_effect_estimate,
                           tvem_XM_details=tvem_XM,
                           funreg_MY_details=funreg_MY,
