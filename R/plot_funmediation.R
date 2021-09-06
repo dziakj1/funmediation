@@ -32,7 +32,7 @@
 #' @param ... Further arguments currently not supported
 #'
 #' @import tvem
-#' @importFrom graphics par plot text lines
+#' @importFrom graphics abline par plot text lines
 #' @importFrom stats qnorm
 #' @export
 #' @method plot funmediation
