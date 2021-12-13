@@ -6,6 +6,7 @@
 \usage{
 simulate_funmediation_example(
   nsub = 500,
+  nlevels = 2,
   ntimes = 100,
   observe_rate = 0.4,
   alpha_int = function(t) {     return(t^0.5) },
@@ -23,6 +24,13 @@ simulate_funmediation_example(
 \arguments{
 \item{nsub}{Number of subjects}
 
+\item{nlevels}{Number of treatment groups or levels on the treatment variable X.
+Subjects are assumed to be randomly assigned to each level with equal
+probability (i.e., the probability per level is 1/nlevel).  Default is 2 for
+a randomized controlled trial with a control group X=0 and an experimental
+group X=1.  There should not be less than 2 or more than 5 groups for purposes
+of this function.}
+
 \item{ntimes}{Number of potential times that could be observed on each subject}
 
 \item{observe_rate}{Proportion of potential times on which there are actually
@@ -30,23 +38,32 @@ observations. Not all times are observed; this is assumed to be completely rando
 to be done by design to reduce participant burden.}
 
 \item{alpha_int}{Function representing the time-varying mean of mediator variable
-for the X=0 group}
+for the level of treatment with all treatment dummy codes X set to 0 (e.g., the
+control group).}
 
-\item{alpha_X}{Function representing the time-varying effect of X on the mediator}
+\item{alpha_X}{Function representing the time-varying effect of X on the
+mediator (if there are two treatment levels) or a list of nlevels-1
+functions representing the effect of receiving each nonzero level of X rather
+than control (if there are more than two treatment levels).}
 
 \item{beta_M}{Function representing the functional coefficient for cumulative
-(scalar-on-function) effect of M on Y adjusting for X}
+(scalar-on-function) effect of the mediator M on the treatment Y adjusting
+for the treatment X}
 
-\item{beta_int}{Mean of Y if X is zero and M is the 0 function}
+\item{beta_int}{Mean of Y if the X is zero and M is the 0 function}
 
-\item{beta_X}{Direct effect of X on Y after adjusting for M}
+\item{beta_X}{Numeric value representing the direct effect of X on Y after adjusting
+for M (if there are two treatment levels) or a vector of nlevels-1 numeric values
+ (if there are more than two treatment levels)}
 
-\item{sigma_Y}{Error standard deviation of the outcome Y}
+\item{sigma_Y}{Error standard deviation of the outcome Y (conditional on
+treatment and mediator trajectory)}
 
-\item{sigma_M_error}{Error standard deviation of the mediator M}
+\item{sigma_M_error}{Error standard deviation of the mediator M (conditional
+on treatment and time)}
 
-\item{rho_M_error}{Autoregressive correlation coefficient of the mediator M
-from one observation to the next}
+\item{rho_M_error}{Autoregressive correlation coefficient of the error
+in the mediator M, from one observation to the next}
 
 \item{simulate_binary_Y}{Whether Y should be generated from a binary
 logistic (TRUE) or Gaussian (FALSE) model}
@@ -60,20 +77,44 @@ A list with the following components:
 \describe{
 \item{time_grid}{The time grid for interpreting functional coefficients.}
 \item{true_alpha_int}{True value of the time-varying alpha_int parameter,
-representing the time-specific mean of the mediator M when X is 0.}
+representing the time-specific mean of the mediator M when the
+treatment value X is 0. }
 \item{true_alpha_X}{True value of the time-varying alpha_X parameter,
-representing the effect of X on M.}
+representing the effect of X on M.  This is a single number if nlevels=2,
+or a vector of effects if nlevels>2.}
 \item{true_beta_int}{True value of the beta_M parameter, representing
-the mean of the outcome, Y, when X=0 and M=0.}
+the mean of the outcome Y when X=0 and M=0.}
 \item{true_beta_M}{True value of the beta_M parameter, representing the
-functional effect of the mediator, M, on the outcome, Y.}
+ functional effect of treatment on the outcome Y.}
 \item{true_beta_X}{True value of the beta_X parameter, representing the
-effect of X on the outcome, Y, adjusting for the mediator, M.}
+ effect of treatment on the outcome Y adjusting for the mediator. This
+ is a single function if nlevels=2, or a vector of functions if nlevels>2.}
 \item{true_indirect}{True value of the indirect parameter, representing
-the indirect (mediated) effect of X on the outcome, Y.}
+ the indirect (mediated) effect of treatment on the outcome Y.  This is
+ a single number if nlevels=2, or a vector of effects if nlevels>2.}
 \item{dataset}{The simulated longitudinal dataset in long form.}
 }
 }
 \description{
 Simulates a dataset for demonstrating the funmediation function.
+}
+\examples{
+set.seed(123)
+# Simplest way to call the function:
+simulation_all_defaults <- simulate_funmediation_example()
+summary(simulation_all_defaults)
+head(simulation_all_defaults)
+# Changing the sample size to be larger:
+simulation_larger <- simulate_funmediation_example(nsub=10000)
+summary(simulation_larger)
+# Changing the effect of the mediator to be null:
+simulation_null <- simulate_funmediation_example(beta_M=function(t) {return(0*t)})
+summary(simulation_null)
+# Simulating a exposure variable with three levels (two dichotomous dummy codes)
+simulation_three_group <- simulate_funmediation_example(nlevels=3,
+                              alpha_X = list(function(t) {return(.1*t)},
+                                             function(t) {return(-(t/2)^.5)}),
+                              beta_X = c(-.2,.2))
+print(summary(simulation_three_group));
+
 }

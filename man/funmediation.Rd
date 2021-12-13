@@ -14,6 +14,7 @@ funmediation(
   tve_covariates_on_mediator = NULL,
   tie_covariates_on_mediator = NULL,
   covariates_on_outcome = NULL,
+  interpolate = TRUE,
   tvem_penalize = TRUE,
   tvem_penalty_order = 1,
   tvem_spline_order = 3,
@@ -31,10 +32,12 @@ funmediation(
 format (one row per observation, multiple per individual).}
 
 \item{treatment}{The name of the variable containing the treatment
-assignment, assumed to be unidimensional (dichotomous or numerical;
-we recommend dichotomous with 0 for control and 1 for experimental).
-The values of this variable should be the same for each row for a
-given subject.}
+assignment, assumed to be unidimensional (either binary
+or else numeric).  We recommend a binary (dichotomous) treatment with
+0 for control and 1 for experimental).  The values of this variable
+should be the same for each row for a given subject.  If there are
+more than one treatment variables, such as a dummy-coded exposure with
+more than two levels, specify them as a formula such as ~x1+x2.}
 
 \item{mediator}{The name of the mediator variable. The values of
 this variable can (and should) vary within each subject.}
@@ -59,6 +62,14 @@ in the model predicting the outcome from the treatment.
 They are assumed to be subject-level (time-invariant both in value
 and in effect).}
 
+\item{interpolate}{What kind of presmoothing to use in the
+penalized functional regression -- specifically, whether
+to interpolate each subject's trajectory on the mediator
+(TRUE) or fit a spline to each subject's trajectory on the
+mediator (FALSE).  This will be counted as TRUE if
+binary_mediator is TRUE because it does
+not make as much sense to interpolate a binary outcome.}
+
 \item{tvem_penalize}{Input to be passed on to the tvem function}
 
 \item{tvem_penalty_order}{Input to be passed on to the tvem function}
@@ -66,12 +77,10 @@ and in effect).}
 \item{tvem_spline_order}{Input to be passed on to the tvem function}
 
 \item{tvem_num_knots}{If tvem_do_loop is FALSE, then tvem_num_knots
-is passed on to the tvem function as num_knots,
-the number of interior knots for the B-splines. If tvem_do_loop is
+is passed on to the tvem function as num_knots, an integer representing
+the number of interior knots per B-spline. If tvem_do_loop is
 TRUE then tvem_num_knots is reinterpreted as the highest number of
-interior knots to try. This can be either
-an integer or a vector if tvem_do_loop is FALSE, but must be an integer
-if tvem_do_loop is TRUE.}
+interior knots to try.}
 
 \item{tvem_do_loop}{Whether to use a loop to select the number of knots
 with a pseudo-AIC or pseudo-BIC, passed on to the tvem function}
@@ -98,7 +107,7 @@ test of the overall effect. This test is done using the boot
 function from the boot package by Angelo Canty and Brian Ripley.
 It differs somewhat from the bootstrap approach used in a similar
 context by Lindquist (2012).  We recommend using at least 200 bootstrap
-samples and preferably 500 or more if time permits.}
+samples and preferably 500 or more.}
 
 \item{boot_level}{One minus the nominal coverage for
 the bootstrap confidence interval estimates.}
@@ -155,7 +164,7 @@ varying-effect model predicting the mediator, M, from the treatment, X.}
 \item{funreg_MY_details}{Detailed output from the refund::pfr function for
 the scalar-on-function functional regression predicting the outcome, Y, from
 the treatment, X, and mediator, M.}
-\item{direct_effect_details}{Detailed output from the linear or generalized
+\item{total_effect_details}{Detailed output from the linear or generalized
 linear model predicting the outcome from the treatment alone, ignoring the
 mediator (i.e., total effect)}
 }
@@ -178,7 +187,7 @@ confidence interval using the basic method.}
 confidence interval using the percentile method in boot.ci in the boot package.}
 \item{indirect_effect_boot_perc_upper}{Upper end of the bootstrap
 confidence interval using the percentile method.}
-\item{boot_level}{The beta level used for the bootstrap confidence interval.}
+\item{boot_level}{The alpha level used for the bootstrap confidence interval.}
 \item{boot1}{The output returned from the boot function.}
 \item{time.required}{The amount of time spent doing the bootstrap test,
 including generating and analyzing all samples.}
@@ -187,7 +196,7 @@ including generating and analyzing all samples.}
 \description{
 Calculate indirect effect of a binary treatment on a scalar
 response as mediated by a longitudinal functional trajectory
-(see Baron & Kenny, 1986; Lindquist, 2012; Coffman et al., 2019).
+(see Baron & Kenny, 1986; Lindquist, 2012; Coffman et al., 2021).
 }
 \note{
 This function calls the tvem function in the tvem package.
@@ -202,22 +211,20 @@ distinction in social psychological research: Conceptual, strategic,
 and statistical considerations. Journal of Personality & Social
 Psychology, 51: 1173-1182.
 
-Coffman, D. L., Dziak, J. J., Li, R., & Piper, M. (2019). Functional
-regression mediation analysis with application to a smoking
-cessation intervention. Joint Statistical Meetings presentation,
-August 2019.
+Coffman, D. L., Dziak, J. J., Litson, K., Chakraborti, Y., Piper, M. E., & Li, R. #' (2021). A causal approach to functional mediation analysis with application to a 
+smoking cessation intervention. <arXiv:2112.03960>
 
 Dziak, J. J., Coffman, D. L., Reimherr, M., Petrovich, J., Li, R.,
 Shiffman, S., & Shiyko, M. P. (2019). Scalar-on-function regression
 for predicting distal outcomes from intensively gathered longitudinal
 data: interpretability for applied scientists.
-Statistics Surveys, 13, 150-180.
+Statistics Surveys, 13, 150-180. <doi:10.1214/19-SS126>
 
 Goldsmith, J., Bobb, J., Crainiceanu, C., Caffo, B., & Reich, D.
 (2011). Penalized functional regression. Journal of Computational
-and Graphical Statistics, 20(4), 830-851.
+and Graphical Statistics, 20(4), 830-851. <doi:10.1198/jcgs.2010.10007>
 
 Lindquist, M. A. (2012). Functional Causal Mediation Analysis
 With an Application to Brain Connectivity. Journal of the American
-Statistical Association, 107: 1297-1309.
+Statistical Association, 107: 1297-1309. <doi:10.1080/01621459.2012.695640>
 }

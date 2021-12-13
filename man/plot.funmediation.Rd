@@ -4,25 +4,38 @@
 \alias{plot.funmediation}
 \title{plot.funmediation: Produces plots for a funmediation model.}
 \usage{
-\method{plot}{funmediation}(x, use_panes = TRUE, what_plot = c("pfr", "coefs", "tvem"), ...)
+\method{plot}{funmediation}(
+  x,
+  use_panes = TRUE,
+  what_plot = c("pfr", "pfrgam", "coefs", "tvem"),
+  alpha_level = 0.05,
+  ...
+)
 }
 \arguments{
 \item{x}{The funmediation object to be plotted.}
 
 \item{use_panes}{Whether to plot multiple coefficient functions in a single image.}
 
-\item{what_plot}{One of "pfr","coefs", or "tvem."  These options are as follows:
+\item{what_plot}{One of "pfr","coefs", or "tvem."  These options are as follows:}
+
+\item{alpha_level}{Default is .05 for pointwise 95% confidence intervals.
 \describe{
 \item{pfr}{For a "pfr" plot, the functional coefficient for predicting the
-outcome, Y, from the mediator, M (conditional on X), is shown, by calling
-the plot method for the penalized functional regression results. See the
-documentation for plot.gam() in the mgcv function for more information,
-because the pfr() function uses gam() as a back end.}
+outcome, Y, from the mediator, M (conditional on X), is shown.}
+\item{pfrgam}{Similar to a "pfr" plot, but uses the plot method for
+the penalized functional regression results. See the
+documentation for pfr() in the refund library and for
+plot.gam() in the mgcv library  for more information.}
 \item{coefs}{For a "coefs" plot, the three important functional coefficients
 in the model (intercept for predicting M, effect of X on M,
 and the effect of M on Y adjusting for X) are plotted one after
 another. That is, the plots are shown for the alpha_int_estimate, alpha_X_estimate,
-and beta_M_estimate, each as a function of time_grid.}
+and beta_M_estimate, each as a function of time_grid.  Approximate pointwise
+95% confidence intervals are also shown if possible.  If there is only
+one dichotomous treatment variable and panes are being used, the lower right
+pane will be free, so the indirect effect will be printed there even
+though it is a scalar.}
 \item{tvem}{For a "tvem" plot, the functional coefficients in the TVEM model
 predicting M from X are displayed.}
 }}
