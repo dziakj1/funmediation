@@ -1,21 +1,25 @@
 Package: funmediation
 Type: Package
 Title: Functional Mediation for a Distal Outcome
-Version: 0.1.1
-Date: 2021-09-06
+Version: 1.0.0
+Date: 2021-12-09
 Authors@R: c(person(given="John J.", family="Dziak",
                      role = c("aut", "cre"),
-                     email = "dziakj1@gmail.com"),
-              person(given="Donna L.", family="Coffman", role = "aut"),
+                     email = "dziakj1@gmail.com",
+					 comment = c(ORCID = "0000-0003-0762-5495")),
+              person(given="Donna L.", 
+					 family="Coffman", 
+					 role = "aut",
+					 comment=c(ORCID="0000-0001-6305-6579")),
+			  person(given="Kaylee", family="Litson", role = "aut"),
               person(given="Yajnaseni",family="Chakraborti",role="aut"),
-              person(given="Runze", family="Li", role = "aut"),
-			  person(given="Kaylee", family="Litson", role = "aut"))
+              person(given="Runze", family="Li", role = "aut"))
 VignetteBuilder: knitr
 Depends: refund, tvem, boot
 Suggests: knitr, rmarkdown
 Maintainer: John J. Dziak <dziakj1@gmail.com>
 Copyright: 2021 by The Pennsylvania State University
-Description: Fits a functional mediation model with a scalar distal outcome.  The method is similar to that of Lindquist (2012) <doi:10.1080/01621459.2012.695640> although allowing a binary outcome as an alternative to a numerical outcome.  The development of this package was part of a research project supported by National Institutes of Health grants P50 DA039838 from the National Institute of Drug Abuse and 1R01 CA229542-01 from the National Cancer Institute and the NIH Office of Behavioral and Social Science Research. Content is solely the responsibility of the authors and does not necessarily represent the official views of the funding institutions mentioned above. This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+Description: Fits a functional mediation model with a scalar distal outcome. The method is described in detail by Coffman, Dziak, Litson, Chakraborti, Piper & Li (2021) <arXiv:2112.03960>. The model is similar to that of Lindquist (2012) <doi:10.1080/01621459.2012.695640> although allowing a binary outcome as an alternative to a numerical outcome.  The development of this package was part of a research project supported by National Institutes of Health grants P50 DA039838 from the National Institute of Drug Abuse and 1R01 CA229542-01 from the National Cancer Institute and the NIH Office of Behavioral and Social Science Research. Content is solely the responsibility of the authors and does not necessarily represent the official views of the funding institutions mentioned above. This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 License: GPL (>= 2)
 Encoding: UTF-8
 RoxygenNote: 7.1.1
