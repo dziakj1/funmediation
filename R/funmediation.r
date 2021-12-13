@@ -2,7 +2,7 @@
 #'
 #' Calculate indirect effect of a binary treatment on a scalar
 #' response as mediated by a longitudinal functional trajectory
-#' (see Baron & Kenny, 1986; Lindquist, 2012; Coffman et al., 2019).
+#' (see Baron & Kenny, 1986; Lindquist, 2012; Coffman et al., 2021).
 #'
 #' @note This function calls the tvem function in the tvem package.
 #' It also calls the pfr function in the refund package (see
@@ -16,10 +16,8 @@
 #' and statistical considerations. Journal of Personality & Social
 #' Psychology, 51: 1173-1182.
 #' @references
-#' Coffman, D. L., Dziak, J. J., Li, R., & Piper, M. (2019). Functional
-#' regression mediation analysis with application to a smoking
-#' cessation intervention. Joint Statistical Meetings presentation,
-#' August 2019.
+#' Coffman, D. L., Dziak, J. J., Litson, K., Chakraborti, Y., Piper, M. E., & Li, R. #' (2021). A causal approach to functional mediation analysis with application to a 
+#' smoking cessation intervention. <arXiv:2112.03960>
 #' @references
 #' Dziak, J. J., Coffman, D. L., Reimherr, M., Petrovich, J., Li, R.,
 #' Shiffman, S., & Shiyko, M. P. (2019). Scalar-on-function regression
@@ -29,7 +27,7 @@
 #' @references
 #' Goldsmith, J., Bobb, J., Crainiceanu, C., Caffo, B., & Reich, D.
 #' (2011). Penalized functional regression. Journal of Computational
-#' and Graphical Statistics, 20(4), 830-851.
+#' and Graphical Statistics, 20(4), 830-851. <doi:10.1198/jcgs.2010.10007>
 #' @references
 #' Lindquist, M. A. (2012). Functional Causal Mediation Analysis
 #' With an Application to Brain Connectivity. Journal of the American
