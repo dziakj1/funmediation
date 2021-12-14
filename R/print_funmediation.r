@@ -5,6 +5,7 @@
 #'
 #' @import tvem
 #' @importFrom utils getS3method
+#' @return This function does not return an object, but is called for its side effect of printing information.
 #'
 #' @export
 #' @method print funmediation

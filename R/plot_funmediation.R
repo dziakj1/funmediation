@@ -9,7 +9,6 @@
 #' @param x The funmediation object to be plotted.
 #' @param use_panes Whether to plot multiple coefficient functions in a single image.
 #' @param what_plot One of "pfr","coefs", or "tvem."  These options are as follows:
-#' @param alpha_level Default is .05 for pointwise 95% confidence intervals.
 #' \describe{
 #' \item{pfr}{For a "pfr" plot, the functional coefficient for predicting the
 #' outcome, Y, from the mediator, M (conditional on X), is shown.}
@@ -22,14 +21,17 @@
 #' and the effect of M on Y adjusting for X) are plotted one after
 #' another. That is, the plots are shown for the alpha_int_estimate, alpha_X_estimate,
 #' and beta_M_estimate, each as a function of time_grid.  Approximate pointwise
-#' 95% confidence intervals are also shown if possible.  If there is only
+#' 95 percent confidence intervals are also shown if possible.  If there is only
 #' one dichotomous treatment variable and panes are being used, the lower right
 #' pane will be free, so the indirect effect will be printed there even
 #' though it is a scalar.}
 #' \item{tvem}{For a "tvem" plot, the functional coefficients in the TVEM model
 #' predicting M from X are displayed.}
 #' }
+#' @param alpha_level Default is .05 for pointwise 95 percent confidence intervals.
 #' @param ... Further arguments currently not supported
+#' @return This function does not return an object, but is called for its side effect of plotting to the active device.
+#'
 #'
 #' @import tvem
 #' @importFrom graphics abline par plot text lines
@@ -45,6 +47,8 @@ plot.funmediation <- function(x,
                                           "tvem"),
                               alpha_level=.05,
                               ...) {
+  old_par <- par(no.readonly = TRUE);
+  on.exit(par(old_par));
   num_treatment_variables <- length(x$important_variable_names$treatment);
   if (use_panes==FALSE) {par(mfrow=c(1,1));}
   what <- match.arg(what_plot)
