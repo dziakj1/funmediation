@@ -24,7 +24,8 @@ funmediation(
   binary_mediator = FALSE,
   binary_outcome = FALSE,
   nboot = 200,
-  boot_level = 0.05
+  boot_level = 0.05,
+  show_progress = FALSE
 )
 }
 \arguments{
@@ -111,6 +112,11 @@ samples and preferably 500 or more.}
 
 \item{boot_level}{One minus the nominal coverage for
 the bootstrap confidence interval estimates.}
+
+\item{show_progress}{Whether to display intermediate updates on the progress of
+the bootstrap simulations.  If show_progress==FALSE then the funmediation
+function runs silently but results can be viewed via the print and plot methods.
+If show_progress==TRUE then progress messages will be printed.}
 }
 \value{
 An object of type funmediation. The components of an object of
@@ -211,7 +217,7 @@ distinction in social psychological research: Conceptual, strategic,
 and statistical considerations. Journal of Personality & Social
 Psychology, 51: 1173-1182.
 
-Coffman, D. L., Dziak, J. J., Litson, K., Chakraborti, Y., Piper, M. E., & Li, R. #' (2021). A causal approach to functional mediation analysis with application to a 
+Coffman, D. L., Dziak, J. J., Litson, K., Chakraborti, Y., Piper, M. E., & Li, R. #' (2021). A causal approach to functional mediation analysis with application to a
 smoking cessation intervention. <arXiv:2112.03960>
 
 Dziak, J. J., Coffman, D. L., Reimherr, M., Petrovich, J., Li, R.,

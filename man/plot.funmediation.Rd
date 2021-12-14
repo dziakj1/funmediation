@@ -17,9 +17,7 @@
 
 \item{use_panes}{Whether to plot multiple coefficient functions in a single image.}
 
-\item{what_plot}{One of "pfr","coefs", or "tvem."  These options are as follows:}
-
-\item{alpha_level}{Default is .05 for pointwise 95% confidence intervals.
+\item{what_plot}{One of "pfr","coefs", or "tvem."  These options are as follows:
 \describe{
 \item{pfr}{For a "pfr" plot, the functional coefficient for predicting the
 outcome, Y, from the mediator, M (conditional on X), is shown.}
@@ -32,7 +30,7 @@ in the model (intercept for predicting M, effect of X on M,
 and the effect of M on Y adjusting for X) are plotted one after
 another. That is, the plots are shown for the alpha_int_estimate, alpha_X_estimate,
 and beta_M_estimate, each as a function of time_grid.  Approximate pointwise
-95% confidence intervals are also shown if possible.  If there is only
+95 percent confidence intervals are also shown if possible.  If there is only
 one dichotomous treatment variable and panes are being used, the lower right
 pane will be free, so the indirect effect will be printed there even
 though it is a scalar.}
@@ -40,7 +38,12 @@ though it is a scalar.}
 predicting M from X are displayed.}
 }}
 
+\item{alpha_level}{Default is .05 for pointwise 95 percent confidence intervals.}
+
 \item{...}{Further arguments currently not supported}
+}
+\value{
+This function does not return an object, but is called for its side effect of plotting to the active device.
 }
 \description{
 Produces plots from a funmediation object produced by
