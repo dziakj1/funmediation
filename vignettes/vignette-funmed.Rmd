@@ -85,10 +85,10 @@ A `.zip` or `.tar.gz` file containing the package is available at  [https://gith
  `Packages > Install Package(s)` from Local Files in the R graphical user interface,
  or `Tools > Install Packages` in the RStudio application, to  install the package.
  
-   We plan to release `funmediation` on the CRAN archive, so that it can be installed using the command 
+   We have also released `funmediation` on the CRAN archive, so that it can be installed using the command 
 ```{r,eval=FALSE}
 install.packages("funmediation")
-````
+```
 
 Another option is to install the package by code from the GitHub repository as follows:
 
